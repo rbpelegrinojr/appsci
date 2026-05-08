@@ -103,21 +103,20 @@
     </div>
 
     <script type="text/javascript">
-        var dataTable;
+        var selectedSchoolYear = '';
+
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (!selectedSchoolYear) return true;
+            // School Year is column index 5
+            return data[5] === selectedSchoolYear;
+        });
+
         $(document).ready(function () {
-            dataTable = $('#myTable').DataTable();
+            var dataTable = $('#myTable').DataTable();
 
             $('#schoolYearFilter').on('change', function () {
-                var val = $(this).val();
-                dataTable.rows().every(function () {
-                    var rowNode = this.node();
-                    var rowSY = $(rowNode).data('school-year') || '';
-                    if (val === '' || rowSY === val) {
-                        $(rowNode).show();
-                    } else {
-                        $(rowNode).hide();
-                    }
-                });
+                selectedSchoolYear = $(this).val();
+                dataTable.draw();
             });
         });
     </script>
