@@ -15,13 +15,13 @@ error_reporting(0);
         <!-- Basic Information Section -->
         <!-- Assessment Results -->
         <?php
-        $user_id = $member_id;
+        $user_id = (int)$member_id;
 
         // Fetch total score summary
         $totalQuery = mysqli_query($con, "
             SELECT 
                 COUNT(*) as total_questions,
-                SUM(a.is_correct) as correct_answers
+                COALESCE(SUM(a.is_correct), 0) as correct_answers
             FROM answers_tbl a
             JOIN questions_tbl q ON q.question_id = a.question_id
             WHERE a.member_id = $user_id
