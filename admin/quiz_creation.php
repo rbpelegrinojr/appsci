@@ -36,10 +36,13 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
                     </select>
                 </div>
                 <div class="mb-2 options-container">
-                    <input type="text" class="form-control" name="options[]" placeholder="Option1, Option2, ..." />
+                    <input type="text" class="form-control options-input" name="options[]" placeholder="Option1, Option2, ..." />
                 </div>
                 <div class="mb-2">
-                    <input type="text" class="form-control" name="correct_answer[]" placeholder="Correct Answer" required />
+                    <select class="form-control correct-answer-select" name="correct_answer[]" required>
+                        <option value="">-- Select Correct Answer --</option>
+                    </select>
+                    <input type="text" class="form-control correct-answer-input" name="correct_answer[]" placeholder="Correct Answer" required style="display:none;" disabled />
                 </div>
                 <hr>
             </div>
@@ -97,23 +100,70 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
         const clone = block.cloneNode(true);
 
         clone.querySelectorAll('textarea, input').forEach(el => el.value = '');
-        clone.querySelector('.question-type').addEventListener('change', toggleOptionsVisibility);
+        // Reset correct answer dropdown
+        const sel = clone.querySelector('.correct-answer-select');
+        sel.innerHTML = '<option value="">-- Select Correct Answer --</option>';
+
+        initQuestionBlock(clone);
         container.appendChild(clone);
+        // Trigger change to set initial visibility
+        clone.querySelector('.question-type').dispatchEvent(new Event('change'));
     }
 
-    function toggleOptionsVisibility() {
-        const block = this.closest('.question-block');
+    function populateCorrectAnswerDropdown(block) {
+        const optionsInput = block.querySelector('.options-input');
+        const select = block.querySelector('.correct-answer-select');
+        const previousValue = select.value;
+        const options = optionsInput.value.split(',').map(o => o.trim()).filter(o => o !== '');
+
+        select.innerHTML = '<option value="">-- Select Correct Answer --</option>';
+        options.forEach(function(opt) {
+            const o = document.createElement('option');
+            o.value = opt;
+            o.textContent = opt;
+            if (opt === previousValue) o.selected = true;
+            select.appendChild(o);
+        });
+    }
+
+    function toggleCorrectAnswerField(block) {
+        const type = block.querySelector('.question-type').value;
+        const select = block.querySelector('.correct-answer-select');
+        const input = block.querySelector('.correct-answer-input');
         const optionsContainer = block.querySelector('.options-container');
-        if (this.value === 'multiple_choice') {
+
+        if (type === 'multiple_choice') {
             optionsContainer.style.display = 'block';
+            select.style.display = 'block';
+            select.disabled = false;
+            select.required = true;
+            input.style.display = 'none';
+            input.disabled = true;
+            input.required = false;
+            populateCorrectAnswerDropdown(block);
         } else {
             optionsContainer.style.display = 'none';
+            select.style.display = 'none';
+            select.disabled = true;
+            select.required = false;
+            input.style.display = 'block';
+            input.disabled = false;
+            input.required = true;
         }
     }
 
-    document.querySelectorAll('.question-type').forEach(el => {
-        el.addEventListener('change', toggleOptionsVisibility);
-        el.dispatchEvent(new Event('change')); // trigger on load
+    function initQuestionBlock(block) {
+        block.querySelector('.question-type').addEventListener('change', function() {
+            toggleCorrectAnswerField(block);
+        });
+        block.querySelector('.options-input').addEventListener('input', function() {
+            populateCorrectAnswerDropdown(block);
+        });
+    }
+
+    document.querySelectorAll('.question-block').forEach(function(block) {
+        initQuestionBlock(block);
+        block.querySelector('.question-type').dispatchEvent(new Event('change'));
     });
 </script>
 

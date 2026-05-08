@@ -46,12 +46,23 @@ if (!$q) {
 
         <div class="mb-3" id="options_container" <?php echo $q['question_type'] !== 'multiple_choice' ? 'style="display:none;"' : ''; ?>>
             <label class="form-label">Options (comma-separated)</label>
-            <input type="text" class="form-control" name="options" value="<?php echo htmlspecialchars($q['options'] ?? ''); ?>" placeholder="Option1, Option2, ...">
+            <input type="text" class="form-control" name="options" id="options_input" value="<?php echo htmlspecialchars($q['options'] ?? ''); ?>" placeholder="Option1, Option2, ...">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Correct Answer</label>
-            <input type="text" class="form-control" name="correct_answer" value="<?php echo htmlspecialchars($q['correct_answer']); ?>" required>
+            <?php
+                $options_list = array_filter(array_map('trim', explode(',', $q['options'] ?? '')));
+            ?>
+            <select class="form-control" name="correct_answer" id="correct_answer_select" <?php echo $q['question_type'] !== 'multiple_choice' ? 'style="display:none;" disabled' : 'required'; ?>>
+                <option value="">-- Select Correct Answer --</option>
+                <?php foreach ($options_list as $opt): ?>
+                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php echo $q['correct_answer'] === $opt ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($opt); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="text" class="form-control" name="correct_answer" id="correct_answer_input" value="<?php echo $q['question_type'] !== 'multiple_choice' ? htmlspecialchars($q['correct_answer']) : ''; ?>" placeholder="Correct Answer" <?php echo $q['question_type'] === 'multiple_choice' ? 'style="display:none;" disabled' : 'required'; ?>>
         </div>
 
         <a href="quiz_creation.php?module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Cancel</a>
@@ -60,9 +71,53 @@ if (!$q) {
 </div>
 
 <script>
+    function populateCorrectAnswerDropdown() {
+        const optionsInput = document.getElementById('options_input');
+        const select = document.getElementById('correct_answer_select');
+        const previousValue = select.value;
+        const options = optionsInput.value.split(',').map(o => o.trim()).filter(o => o !== '');
+
+        select.innerHTML = '<option value="">-- Select Correct Answer --</option>';
+        options.forEach(function(opt) {
+            const o = document.createElement('option');
+            o.value = opt;
+            o.textContent = opt;
+            if (opt === previousValue) o.selected = true;
+            select.appendChild(o);
+        });
+    }
+
+    function toggleCorrectAnswerField(type) {
+        const select = document.getElementById('correct_answer_select');
+        const input = document.getElementById('correct_answer_input');
+        const optionsContainer = document.getElementById('options_container');
+
+        if (type === 'multiple_choice') {
+            optionsContainer.style.display = 'block';
+            select.style.display = 'block';
+            select.disabled = false;
+            select.required = true;
+            input.style.display = 'none';
+            input.disabled = true;
+            input.required = false;
+            populateCorrectAnswerDropdown();
+        } else {
+            optionsContainer.style.display = 'none';
+            select.style.display = 'none';
+            select.disabled = true;
+            select.required = false;
+            input.style.display = 'block';
+            input.disabled = false;
+            input.required = true;
+        }
+    }
+
     document.getElementById('question_type').addEventListener('change', function () {
-        document.getElementById('options_container').style.display =
-            this.value === 'multiple_choice' ? 'block' : 'none';
+        toggleCorrectAnswerField(this.value);
+    });
+
+    document.getElementById('options_input').addEventListener('input', function () {
+        populateCorrectAnswerDropdown();
     });
 </script>
 
