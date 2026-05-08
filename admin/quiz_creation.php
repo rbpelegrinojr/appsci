@@ -76,6 +76,8 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
                 <td style="white-space:nowrap;">
                     <!-- Edit Button -->
                     <button class="btn btn-sm btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editQuestionModal"
                         onclick="openEditModal(
                             <?php echo $q['question_id']; ?>,
                             <?php echo htmlspecialchars(json_encode($q['question_text'])); ?>,
@@ -178,9 +180,6 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
         document.getElementById('edit_question_type').onchange = function() {
             optCont.style.display = (this.value === 'multiple_choice') ? 'block' : 'none';
         };
-
-        var modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
-        modal.show();
     }
 </script>
 
