@@ -14,6 +14,43 @@ error_reporting(0);
         
         <!-- Basic Information Section -->
         <!-- Assessment Results -->
+        <?php
+        $user_id = $member_id;
+
+        // Fetch total score summary
+        $totalQuery = mysqli_query($con, "
+            SELECT 
+                COUNT(*) as total_questions,
+                SUM(a.is_correct) as correct_answers
+            FROM answers_tbl a
+            JOIN questions_tbl q ON q.question_id = a.question_id
+            WHERE a.member_id = $user_id
+        ");
+        $totalRow = mysqli_fetch_assoc($totalQuery);
+        $totalQuestions = (int)$totalRow['total_questions'];
+        $totalCorrect   = (int)$totalRow['correct_answers'];
+        $totalPercent   = ($totalQuestions > 0) ? round(($totalCorrect / $totalQuestions) * 100, 2) : 0;
+        ?>
+
+        <!-- Total Score Summary -->
+        <div class="card p-4 mt-4 bg-dark text-white">
+            <h4>Overall Total Score</h4>
+            <div class="row text-center mt-3">
+                <div class="col-md-4">
+                    <h2><?php echo $totalQuestions; ?></h2>
+                    <p>Total Questions</p>
+                </div>
+                <div class="col-md-4">
+                    <h2><?php echo $totalCorrect; ?></h2>
+                    <p>Correct Answers</p>
+                </div>
+                <div class="col-md-4">
+                    <h2><?php echo $totalPercent; ?>%</h2>
+                    <p>Overall Score</p>
+                </div>
+            </div>
+        </div>
+
         <div class="card p-4 mt-4">
             <h4>Assessment Scores</h4>
             <table class="table table-striped">
@@ -28,8 +65,6 @@ error_reporting(0);
                 </thead>
                 <tbody>
                     <?php
-                    $user_id = $member_id;
-
                     // Fetch distinct module attempts
                     $scoreQuery = mysqli_query($con, "
                         SELECT 
