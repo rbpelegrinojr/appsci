@@ -37,7 +37,7 @@ if (isset($_REQUEST['btnAddModule'])) {
 }
 
 if (isset($_POST['add_questions_bulk'])) {
-    $module_id = $_POST['module_id'];
+    $module_id = (int)$_POST['module_id'];
     $texts = $_POST['question_text'];
     $types = $_POST['question_type'];
     $optionsList = $_POST['options'];
@@ -66,4 +66,49 @@ if (isset($_POST['add_questions_bulk'])) {
     }
 }
 
+// Edit a single quiz question
+if (isset($_POST['edit_question'])) {
+    $question_id = (int)$_POST['question_id'];
+    $module_id   = (int)$_POST['module_id'];
+    $question_text  = mysqli_real_escape_string($con, $_POST['question_text']);
+    $question_type  = mysqli_real_escape_string($con, $_POST['question_type']);
+    $options        = mysqli_real_escape_string($con, $_POST['options'] ?? '');
+    $correct_answer = mysqli_real_escape_string($con, $_POST['correct_answer']);
+
+    $sql = "UPDATE questions_tbl SET question_text='$question_text', question_type='$question_type', options='$options', correct_answer='$correct_answer' WHERE question_id=$question_id";
+    if (mysqli_query($con, $sql)) {
+        header("Location: ../quiz_creation.php?module_id=$module_id&success=Question updated successfully");
+    } else {
+        header("Location: ../quiz_creation.php?module_id=$module_id&error=Error updating question");
+    }
+}
+
+// Delete a quiz question
+if (isset($_POST['delete_question'])) {
+    $question_id = (int)$_POST['question_id'];
+    $module_id   = (int)$_POST['module_id'];
+
+    $sql = "DELETE FROM questions_tbl WHERE question_id=$question_id";
+    if (mysqli_query($con, $sql)) {
+        header("Location: ../quiz_creation.php?module_id=$module_id&success=Question deleted successfully");
+    } else {
+        header("Location: ../quiz_creation.php?module_id=$module_id&error=Error deleting question");
+    }
+}
+
+// Archive a student
+if (isset($_POST['archiveStudent'])) {
+    $member_id = (int)$_POST['member_id'];
+    mysqli_query($con, "UPDATE members_tbl SET archived=1 WHERE member_id=$member_id");
+    header("Location: ../users_view.php");
+}
+
+// Restore an archived student
+if (isset($_POST['restoreStudent'])) {
+    $member_id = (int)$_POST['member_id'];
+    mysqli_query($con, "UPDATE members_tbl SET archived=0 WHERE member_id=$member_id");
+    header("Location: ../archived_users_view.php");
+}
+
 ?>
+

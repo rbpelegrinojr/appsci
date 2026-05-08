@@ -3,7 +3,11 @@ date_default_timezone_set('ASIA/Manila');
 
 if ($con = mysqli_connect("localhost", "thesissy_appsci", "Sw0rdf1sh@34", "thesissy_appsci")) {
 
-	# code...
+	// Ensure school_year column exists
+	mysqli_query($con, "ALTER TABLE members_tbl ADD COLUMN IF NOT EXISTS school_year VARCHAR(20) DEFAULT NULL");
+	// Ensure archived column exists
+	mysqli_query($con, "ALTER TABLE members_tbl ADD COLUMN IF NOT EXISTS archived TINYINT(1) NOT NULL DEFAULT 0");
+
 }else{
 
 	?>

@@ -50,6 +50,24 @@
                                 </div>
                             </div>
 
+                            <!-- School Year -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select class="form-control" id="school_year" name="school_year" required>
+                                        <option value="" disabled selected>Select School Year</option>
+                                        <?php
+                                        $startYear = 2023;
+                                        $endYear = (int)date('Y') + 3;
+                                        for ($y = $startYear; $y <= $endYear; $y++) {
+                                            $syLabel = $y . '-' . ($y + 1);
+                                            echo "<option value=\"$syLabel\">$syLabel</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <label for="school_year">School Year</label>
+                                </div>
+                            </div>
+
                             <!-- Username -->
                             <div class="col-12">
                                 <div class="form-floating">

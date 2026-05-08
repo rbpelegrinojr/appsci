@@ -5,13 +5,15 @@
             <div class="col-12">
                 <div class="page_title_box d-flex flex-wrap align-items-center justify-content-between">
                     <div class="page_title_left d-flex align-items-center">
-                        <h3 class="f_s_25 f_w_700 dark_text mr_30">Students</h3>
+                        <h3 class="f_s_25 f_w_700 dark_text mr_30">Archived Students</h3>
                         <ol class="breadcrumb page_bradcam mb-0">
                             <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                            <li class="breadcrumb-item"><a href="users_view.php">Students</a></li>
+                            <li class="breadcrumb-item active">Archived</li>
                         </ol>
                     </div>
                     <div class="page_title_right d-flex align-items-center" style="gap:10px;">
-                        <a href="archived_users_view.php" class="btn btn-secondary btn-sm">View Archived Students</a>
+                        <a href="users_view.php" class="btn btn-secondary btn-sm">Back to Active Students</a>
                         <div class="page_date_button d-flex align-items-center">
                             <img src="img/icon/calender_icon.svg" alt="">
                             <?php echo date('F j, Y', strtotime(date('Y-m-d'))); ?>
@@ -21,7 +23,7 @@
             </div>
         </div>
 
-        <div class="row "> <!-- Header -->
+        <div class="row ">
 
         <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css">
         <script type="text/javascript" src="DataTables/datatables.min.js"></script>
@@ -31,14 +33,14 @@
                 <div class="white_card_header">
                     <div class="box_header m-0 d-flex align-items-center justify-content-between">
                         <div class="main-title">
-                            <h3 class="m-0">Students</h3>
+                            <h3 class="m-0">Archived Students</h3>
                         </div>
                         <div class="d-flex align-items-center" style="gap:10px;">
                             <label class="mb-0"><strong>Filter by School Year:</strong></label>
                             <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
                                 <option value="">All</option>
                                 <?php
-                                $syRes = mysqli_query($con, "SELECT DISTINCT school_year FROM members_tbl WHERE archived = 0 AND school_year IS NOT NULL AND school_year != '' ORDER BY school_year DESC");
+                                $syRes = mysqli_query($con, "SELECT DISTINCT school_year FROM members_tbl WHERE archived = 1 AND school_year IS NOT NULL AND school_year != '' ORDER BY school_year DESC");
                                 while ($syRow = mysqli_fetch_assoc($syRes)) {
                                     echo '<option value="' . htmlspecialchars($syRow['school_year']) . '">' . htmlspecialchars($syRow['school_year']) . '</option>';
                                 }
@@ -69,7 +71,7 @@
                                     SELECT m.*,
                                         (SELECT COUNT(*) FROM answers_tbl a WHERE a.member_id = m.member_id AND a.is_correct = 1) AS total_score
                                     FROM members_tbl m
-                                    WHERE m.archived = 0
+                                    WHERE m.archived = 1
                                     ORDER BY m.lname ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($query)) {
@@ -84,9 +86,9 @@
                                         <td><?php echo (int)$row['total_score']; ?></td>
                                         <td><a href="student_assessments_view.php?member_id=<?php echo $row['member_id']; ?>">View</a></td>
                                         <td>
-                                            <form method="POST" action="controller/save_data.php" onsubmit="return confirm('Archive this student?');">
+                                            <form method="POST" action="controller/save_data.php" onsubmit="return confirm('Restore this student?');">
                                                 <input type="hidden" name="member_id" value="<?php echo $row['member_id']; ?>">
-                                                <button type="submit" name="archiveStudent" class="btn btn-warning btn-sm">Archive</button>
+                                                <button type="submit" name="restoreStudent" class="btn btn-success btn-sm">Restore</button>
                                             </form>
                                         </td>
                                     </tr>
