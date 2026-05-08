@@ -107,9 +107,9 @@
 	</a>
 </div>
 
-<script src="https://demo.dashboardpack.com/user-management-html/js/popper1.min.js"></script>
+<script src="js/popper1.min.js"></script>
 
-<script src="https://demo.dashboardpack.com/user-management-html/js/bootstrap1.min.js"></script>
+<script src="js/bootstrap1.min.js"></script>
 
 <script src="js/metisMenu.js"></script>
 
