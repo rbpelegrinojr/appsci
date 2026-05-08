@@ -54,7 +54,9 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
     <?php if (empty($questions)): ?>
         <p class="text-muted">No questions yet.</p>
     <?php else: ?>
-    <table class="table table-bordered">
+    <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css">
+    <script type="text/javascript" src="DataTables/datatables.min.js"></script>
+    <table class="table table-bordered" id="questionsTable">
         <thead>
             <tr>
                 <th>#</th>
@@ -139,6 +141,13 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
 </div>
 
 <script>
+    $(document).ready(function () {
+        $('#questionsTable').DataTable({
+            pageLength: 10,
+            ordering: true
+        });
+    });
+
     function addQuestion() {
         const container = document.getElementById('question-container');
         const block = document.querySelector('.question-block');
@@ -179,7 +188,7 @@ $questions = mysqli_fetch_all($query, MYSQLI_ASSOC);
             optCont.style.display = (this.value === 'multiple_choice') ? 'block' : 'none';
         };
 
-        var modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editQuestionModal'));
         modal.show();
     }
 </script>
