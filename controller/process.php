@@ -9,12 +9,13 @@ if (isset($_POST['btnReg'])) {
     $lname = mysqli_real_escape_string($con, $_POST['lname']);
     $grade = mysqli_real_escape_string($con, $_POST['grade']);
     $section = mysqli_real_escape_string($con, $_POST['section']);
+    $school_year = mysqli_real_escape_string($con, $_POST['school_year'] ?? '');
     $username = mysqli_real_escape_string($con, $_POST['username']);
     $password = mysqli_real_escape_string($con, $_POST['password']); // No hashing
 
         // Insert new user into database
-        $query = "INSERT INTO members_tbl (fname, mname, lname, grade, section, username, password) 
-                  VALUES ('$fname', '$mname', '$lname', '$grade', '$section', '$username', '$password')";
+        $query = "INSERT INTO members_tbl (fname, mname, lname, grade, section, school_year, username, password) 
+                  VALUES ('$fname', '$mname', '$lname', '$grade', '$section', '$school_year', '$username', '$password')";
 
         if (mysqli_query($con, $query)) {
             echo "<script>alert('Registration successful! You can now log in.'); window.location.href='../login_view.php';</script>";

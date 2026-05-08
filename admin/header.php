@@ -117,6 +117,17 @@ if ($username != $resInfo['username'] || empty($resInfo['username'])) {
 				</div>
 			</a>
 		</li>
+		<li class="">
+			<a href="archived_users_view.php" aria-expanded="false">
+				<div class="nav_icon_small">
+					<span class=""></span>
+					<img src="https://demo.dashboardpack.com/user-management-html/img/menu-icon/5.svg" alt="">
+				</div>
+				<div class="nav_title">
+					<span>Archived Students</span>
+				</div>
+			</a>
+		</li>
 		<!-- <li class="">
 			<a class="has-arrow" href="#" aria-expanded="false">
 				<div class="nav_icon_small">
