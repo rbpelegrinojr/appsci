@@ -4,6 +4,7 @@ include '../../include/db.php';
 if (isset($_REQUEST['btnAddModule'])) {
     $module_name = mysqli_real_escape_string($con, $_POST['module_name']);
     $quarter = mysqli_real_escape_string($con, $_POST['quarter']);
+    $section = mysqli_real_escape_string($con, $_POST['section'] ?? '');
 
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
@@ -21,8 +22,8 @@ if (isset($_REQUEST['btnAddModule'])) {
             $baseURL = 'https://appsci.thesissystems.link/uploads/modules/';
             $fileURL = $baseURL . $fileNameWithTime;
 
-            $sql = "INSERT INTO modules_tbl (module_name, quarter, module_file_url)
-                    VALUES ('$module_name', '$quarter', '$fileURL')";
+            $sql = "INSERT INTO modules_tbl (module_name, quarter, section, module_file_url)
+                    VALUES ('$module_name', '$quarter', '$section', '$fileURL')";
             if (mysqli_query($con, $sql)) {
                 header("Location: ../module_list.php?success=1");
             } else {
@@ -111,4 +112,3 @@ if (isset($_POST['restoreStudent'])) {
 }
 
 ?>
-
