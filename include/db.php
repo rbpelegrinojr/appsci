@@ -38,7 +38,7 @@ function appsci_run_migration($con, $sql, $label) {
 	}
 }
 
-if ($con = mysqli_connect("localhost", "thesissy_appsci", "Sw0rdf1sh@34", "thesissy_appsci")) {
+if ($con = mysqli_connect("localhost", "capsupon_appsci", "Sw0rdf1sh@214", "capsupon_appsci")) {
 	if (!appsci_column_exists($con, 'members_tbl', 'school_year')) {
 		appsci_run_migration($con, "ALTER TABLE members_tbl ADD COLUMN school_year VARCHAR(20) DEFAULT NULL", 'members_tbl.school_year');
 	}
