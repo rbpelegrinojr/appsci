@@ -136,7 +136,6 @@
 <script src="js/datepicker.js"></script>
 <script src="js/datepicker.en.js"></script>
 <script src="js/datepicker.custom.js"></script>
-<script src="js/chart.min.js"></script>
 <script src="js/roundedBar.min.js"></script>
 
 <script src="js/jquery.barfiller.js"></script>
