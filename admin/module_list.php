@@ -123,13 +123,14 @@
 
         table.on('draw', function () {
             var rows = table.rows({ page: 'current' }).nodes();
+            var columnCount = table.columns().count();
             var last = null;
 
             table.column(2, { page: 'current' }).data().each(function (section, i) {
                 var safeSection = $('<div>').text(section || 'Unassigned').html();
                 if (last !== section) {
                     $(rows).eq(i).before(
-                        '<tr class="table-light section-group-row"><td colspan="6"><strong>Section: ' + safeSection + '</strong></td></tr>'
+                        '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + safeSection + '</strong></td></tr>'
                     );
                     last = section;
                 }

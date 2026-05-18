@@ -9,6 +9,10 @@ if (isset($_REQUEST['btnAddModule'])) {
     }
     $module_name = trim($_POST['module_name'] ?? '');
     $quarter = trim($_POST['quarter'] ?? '');
+    if ($module_name === '' || $quarter === '') {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
 
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
