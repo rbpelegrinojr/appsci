@@ -17,7 +17,7 @@
                         </ol>
                     </div>
                     <div class="page_title_right">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModuleModal">Add Module</button>
+                        <button id="openAddModuleModal" class="btn btn-primary" type="button">Add Module</button>
                     </div>
                 </div>
             </div>
@@ -43,6 +43,7 @@
                                     <tr>
                                         <th>Module Name</th>
                                         <th>Quarter</th>
+                                        <th>Section</th>
                                         <th>Module File</th>
                                         <th>Uploaded At</th>
                                         <th>Assessment</th>
@@ -50,12 +51,13 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $query = mysqli_query($con, "SELECT * FROM modules_tbl ORDER BY uploaded_at DESC");
+                                    $query = mysqli_query($con, "SELECT * FROM modules_tbl ORDER BY section ASC, quarter ASC, uploaded_at DESC");
                                     while ($row = mysqli_fetch_assoc($query)) {
                                     ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($row['module_name']); ?></td>
                                             <td><?php echo htmlspecialchars($row['quarter']); ?></td>
+                                            <td><?php echo htmlspecialchars((isset($row['section']) && trim((string)$row['section']) !== '') ? $row['section'] : 'Unassigned'); ?></td>
                                             <td><a href="<?php echo htmlspecialchars($row['module_file_url']); ?>" target="_blank">View File</a></td>
                                             <td><?php echo $row['uploaded_at']; ?></td>
                                             <td>
@@ -85,7 +87,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Module Name</label>
-                        <input type="text" class="form-control" name="module_name" required>
+                        <input type="text" class="form-control" name="module_name" maxlength="255" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Quarter</label>
@@ -95,6 +97,10 @@
                             <option value="3rd">3rd</option>
                             <option value="4th">4th</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Section</label>
+                        <input type="text" class="form-control" name="section" placeholder="e.g. Section A" maxlength="100" pattern="\S+(\s+\S+)*" title="Section cannot be empty or contain only whitespace" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Upload Module File (PDF, DOCX, etc.)</label>
@@ -111,7 +117,34 @@
 
 <script>
     $(document).ready( function () {
-        $('#myTable').DataTable();
+        var table = $('#myTable').DataTable({
+            order: [[2, 'asc'], [1, 'asc']]
+        });
+
+        table.on('draw', function () {
+            var rows = table.rows({ page: 'current' }).nodes();
+            var columnCount = table.columns().count();
+            var last = null;
+
+            table.column(2, { page: 'current' }).data().each(function (section, i) {
+                var escapedSectionLabel = $('<div>').text(section || 'Unassigned').html();
+                if (last !== section) {
+                    $(rows).eq(i).before(
+                        '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + escapedSectionLabel + '</strong></td></tr>'
+                    );
+                    last = section;
+                }
+            });
+        });
+
+        table.draw();
+
+        $('#openAddModuleModal').on('click', function (e) {
+            e.preventDefault();
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addModuleModal')).show();
+            }
+        });
     });
 </script>
 

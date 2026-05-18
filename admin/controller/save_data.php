@@ -2,8 +2,21 @@
 include '../../include/db.php'; 
 
 if (isset($_REQUEST['btnAddModule'])) {
-    $module_name = mysqli_real_escape_string($con, $_POST['module_name']);
-    $quarter = mysqli_real_escape_string($con, $_POST['quarter']);
+    $section_raw = trim($_POST['section'] ?? '');
+    $module_name = trim($_POST['module_name'] ?? '');
+    $quarter = trim($_POST['quarter'] ?? '');
+    $valid_quarters = ['1st', '2nd', '3rd', '4th'];
+    if (
+        $section_raw === '' ||
+        $module_name === '' ||
+        $quarter === '' ||
+        !in_array($quarter, $valid_quarters, true) ||
+        strlen($module_name) > 255 ||
+        strlen($section_raw) > 100
+    ) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
 
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
@@ -21,10 +34,16 @@ if (isset($_REQUEST['btnAddModule'])) {
             $baseURL = 'https://appsci.thesissystems.link/uploads/modules/';
             $fileURL = $baseURL . $fileNameWithTime;
 
-            $sql = "INSERT INTO modules_tbl (module_name, quarter, module_file_url)
-                    VALUES ('$module_name', '$quarter', '$fileURL')";
-            if (mysqli_query($con, $sql)) {
-                header("Location: ../module_list.php?success=1");
+            $stmt = mysqli_prepare($con, "INSERT INTO modules_tbl (module_name, quarter, section, module_file_url) VALUES (?, ?, ?, ?)");
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, "ssss", $module_name, $quarter, $section_raw, $fileURL);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    header("Location: ../module_list.php?success=1");
+                } else {
+                    header("Location: ../module_list.php?error=1");
+                }
+                mysqli_stmt_close($stmt);
             } else {
                 header("Location: ../module_list.php?error=1");
             }
@@ -111,4 +130,3 @@ if (isset($_POST['restoreStudent'])) {
 }
 
 ?>
-
