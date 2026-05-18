@@ -1,6 +1,33 @@
 <?php
 include '../../include/db.php'; 
 
+function appsci_is_allowed_module_file($tmpFilePath, $originalFileName) {
+    $allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+    $allowedMimes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+
+    $extension = strtolower(pathinfo($originalFileName, PATHINFO_EXTENSION));
+    if (!in_array($extension, $allowedExtensions, true)) {
+        return false;
+    }
+
+    $mimeType = null;
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $mimeType = finfo_file($finfo, $tmpFilePath);
+            finfo_close($finfo);
+        }
+    }
+
+    return $mimeType === null || in_array($mimeType, $allowedMimes, true);
+}
+
 if (isset($_REQUEST['btnAddModule'])) {
     $module_name = trim($_POST['module_name'] ?? '');
     $quarter = trim($_POST['quarter'] ?? '');
@@ -23,12 +50,16 @@ if (isset($_REQUEST['btnAddModule'])) {
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
         $fileName = basename($_FILES['module_file']['name']);
+        if (!appsci_is_allowed_module_file($fileTmp, $fileName)) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
         $uploadDir = '../../uploads/modules/';
         $fileNameWithTime = time() . '_' . $fileName;
         $uploadPath = $uploadDir . $fileNameWithTime;
 
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            mkdir($uploadDir, 0755, true);
         }
 
         if (move_uploaded_file($fileTmp, $uploadPath)) {
@@ -82,12 +113,16 @@ if (isset($_POST['btnUpdateModule'])) {
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
         $fileName = basename($_FILES['module_file']['name']);
+        if (!appsci_is_allowed_module_file($fileTmp, $fileName)) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
         $uploadDir = '../../uploads/modules/';
         $fileNameWithTime = time() . '_' . $fileName;
         $uploadPath = $uploadDir . $fileNameWithTime;
 
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            mkdir($uploadDir, 0755, true);
         }
 
         if (!move_uploaded_file($fileTmp, $uploadPath)) {
