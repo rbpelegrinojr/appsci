@@ -33,9 +33,9 @@
                         <div class="main-title">
                             <h3 class="m-0">Students</h3>
                         </div>
-                        <div class="d-flex align-items-center" style="gap:10px;">
-                            <label class="mb-0"><strong>Filter by Section:</strong></label>
-                            <select id="sectionFilter" class="form-control form-control-sm" style="width:160px;">
+                         <div class="d-flex align-items-center" style="gap:10px;">
+                             <label class="mb-0"><strong>Filter by Section:</strong></label>
+                             <select id="sectionFilter" class="form-control form-control-sm" style="width:160px;">
                                 <option value="">All</option>
                                 <?php
                                 $secRes = mysqli_query($con, "SELECT DISTINCT section FROM members_tbl WHERE archived = 0 AND section IS NOT NULL AND section != '' ORDER BY section ASC");
@@ -50,19 +50,20 @@
                                 }
                                 ?>
                             </select>
-                            <label class="mb-0"><strong>Filter by School Year:</strong></label>
-                            <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
-                                <option value="">All</option>
+                             <label class="mb-0"><strong>Filter by School Year:</strong></label>
+                             <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
+                                 <option value="">All</option>
                                 <?php
                                 $syRes = mysqli_query($con, "SELECT DISTINCT school_year FROM members_tbl WHERE archived = 0 AND school_year IS NOT NULL AND school_year != '' ORDER BY school_year DESC");
                                 while ($syRow = mysqli_fetch_assoc($syRes)) {
                                     echo '<option value="' . htmlspecialchars($syRow['school_year']) . '">' . htmlspecialchars($syRow['school_year']) . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                                 }
+                                 ?>
+                             </select>
+                             <button type="button" id="applyFiltersBtn" class="btn btn-primary btn-sm">Filter</button>
+                         </div>
+                     </div>
+                 </div>
                 <div class="white_card_body">
                     <div class="table-responsive">
                         <table class="table" id="myTable">
@@ -143,6 +144,11 @@
             var dataTable = $('#myTable').DataTable({
                 order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
             });
+            var applyFilters = function () {
+                selectedSchoolYear = ($('#schoolYearFilter').val() || '').trim();
+                selectedSection = ($('#sectionFilter').val() || '').trim();
+                dataTable.draw();
+            };
 
             dataTable.on('draw', function () {
                 $('#myTable tbody tr.section-group-row').remove();
@@ -165,14 +171,10 @@
 
             dataTable.draw();
 
-            $('#schoolYearFilter').on('change', function () {
-                selectedSchoolYear = ($(this).val() || '').trim();
-                dataTable.draw();
-            });
+            $('#applyFiltersBtn').on('click', applyFilters);
 
-            $('#sectionFilter').on('change', function () {
-                selectedSection = ($(this).val() || '').trim();
-                dataTable.draw();
+            $('#schoolYearFilter, #sectionFilter').on('change', function () {
+                applyFilters();
             });
         });
     </script>
