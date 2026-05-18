@@ -83,10 +83,10 @@
                                                 <a href="quiz_creation.php?module_id=<?php echo $row['module_id']; ?>" class="btn btn-success btn-sm">Create Quiz</a>
                                             </td>
                                             <td>
-                                                <a href="edit_module.php?module_id=<?php echo $row['module_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="edit_module.php?module_id=<?php echo (int)$row['module_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
 
                                                 <!-- Delete Button -->
-                                                <a href="controller/save_data.php?delete_module_id=<?php echo $row['module_id']; ?>"
+                                                <a href="controller/save_data.php?delete_module_id=<?php echo (int)$row['module_id']; ?>"
                                                    class="btn btn-danger btn-sm"
                                                    onclick="return confirm('Are you sure you want to delete this module?');">
                                                     Delete

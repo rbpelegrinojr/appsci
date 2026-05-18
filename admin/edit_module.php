@@ -17,7 +17,10 @@ if (!$stmt) {
 mysqli_stmt_bind_param($stmt, "i", $module_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
-$module = $result ? mysqli_fetch_assoc($result) : null;
+$module = null;
+if ($result) {
+    $module = mysqli_fetch_assoc($result);
+}
 mysqli_stmt_close($stmt);
 
 if (!$module) {
@@ -55,11 +58,11 @@ if (!$module) {
                     </div>
                     <div class="white_card_body">
                         <form action="controller/save_data.php" method="POST" enctype="multipart/form-data">
-                            <input type="hidden" name="module_id" value="<?php echo $module['module_id']; ?>">
+                            <input type="hidden" name="module_id" value="<?php echo (int)$module['module_id']; ?>">
 
                             <div class="mb-3">
                                 <label class="form-label">Module Name</label>
-                                <input type="text" class="form-control" name="module_name" value="<?php echo htmlspecialchars($module['module_name']); ?>" required>
+                                <input type="text" class="form-control" name="module_name" value="<?php echo htmlspecialchars($module['module_name'], ENT_QUOTES); ?>" required>
                             </div>
 
                             <div class="mb-3">
@@ -74,13 +77,13 @@ if (!$module) {
 
                             <div class="mb-3">
                                 <label class="form-label">School Year</label>
-                                <input type="text" class="form-control" name="school_year" value="<?php echo htmlspecialchars($module['school_year']); ?>" required>
+                                <input type="text" class="form-control" name="school_year" value="<?php echo htmlspecialchars($module['school_year'], ENT_QUOTES); ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Current File</label>
                                 <div>
-                                    <a href="<?php echo htmlspecialchars($module['module_file_url']); ?>" target="_blank">View Current File</a>
+                                    <a href="<?php echo htmlspecialchars($module['module_file_url'], ENT_QUOTES); ?>" target="_blank">View Current File</a>
                                 </div>
                             </div>
 
