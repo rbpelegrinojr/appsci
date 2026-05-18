@@ -74,4 +74,5 @@ if (isset($_POST['btnReg'])) {
 }
 // Close database connection
 mysqli_close($con);
+
 ?>
