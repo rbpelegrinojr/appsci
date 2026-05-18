@@ -173,9 +173,6 @@
 
             $('#applyFiltersBtn').on('click', applyFilters);
 
-            $('#schoolYearFilter, #sectionFilter').on('change', function () {
-                applyFilters();
-            });
         });
     </script>
 <?php include 'footer.php'; ?>
