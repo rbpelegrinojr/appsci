@@ -17,7 +17,7 @@
                         </ol>
                     </div>
                     <div class="page_title_right">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModuleModal">Add Module</button>
+                        <a href="add_module.php" class="btn btn-primary">Add Module</a>
                     </div>
                 </div>
             </div>
@@ -83,19 +83,7 @@
                                                 <a href="quiz_creation.php?module_id=<?php echo $row['module_id']; ?>" class="btn btn-success btn-sm">Create Quiz</a>
                                             </td>
                                             <td>
-                                                <!-- Edit Button -->
-                                                <button
-                                                    class="btn btn-warning btn-sm btnEditModule"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editModuleModal"
-                                                    data-id="<?php echo $row['module_id']; ?>"
-                                                    data-name="<?php echo htmlspecialchars($row['module_name'], ENT_QUOTES); ?>"
-                                                    data-quarter="<?php echo htmlspecialchars($row['quarter'], ENT_QUOTES); ?>"
-                                                    data-school_year="<?php echo htmlspecialchars($row['school_year'], ENT_QUOTES); ?>"
-                                                    data-file_url="<?php echo htmlspecialchars($row['module_file_url'], ENT_QUOTES); ?>"
-                                                >
-                                                    Edit
-                                                </button>
+                                                <a href="edit_module.php?module_id=<?php echo $row['module_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
 
                                                 <!-- Delete Button -->
                                                 <a href="controller/save_data.php?delete_module_id=<?php echo $row['module_id']; ?>"
@@ -118,129 +106,9 @@
 </div>
 
 
-<!-- Add Module Modal -->
-<div class="modal fade" id="addModuleModal" tabindex="-1" aria-labelledby="addModuleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="controller/save_data.php" method="POST" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addModuleModalLabel">Add Module</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <div class="mb-3">
-                        <label class="form-label">Module Name</label>
-                        <input type="text" class="form-control" name="module_name" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Quarter</label>
-                        <select class="form-control" name="quarter" required>
-                            <option value="1st">1st</option>
-                            <option value="2nd">2nd</option>
-                            <option value="3rd">3rd</option>
-                            <option value="4th">4th</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">School Year</label>
-                        <input type="text" class="form-control" name="school_year" placeholder="e.g. 2024-2025" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Upload Module File</label>
-                        <input type="file" class="form-control" name="module_file" required>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" name="btnAddModule" class="btn btn-primary">Add Module</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-</div>
-
-
-<!-- Edit Module Modal -->
-<div class="modal fade" id="editModuleModal" tabindex="-1" aria-labelledby="editModuleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="controller/save_data.php" method="POST" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModuleModalLabel">Edit Module</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body">
-                    <!-- Hidden ID -->
-                    <input type="hidden" name="module_id" id="edit_module_id">
-
-                    <div class="mb-3">
-                        <label class="form-label">Module Name</label>
-                        <input type="text" class="form-control" name="module_name" id="edit_module_name" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Quarter</label>
-                        <select class="form-control" name="quarter" id="edit_quarter" required>
-                            <option value="1st">1st</option>
-                            <option value="2nd">2nd</option>
-                            <option value="3rd">3rd</option>
-                            <option value="4th">4th</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">School Year</label>
-                        <input type="text" class="form-control" name="school_year" id="edit_school_year" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Current File</label>
-                        <div>
-                            <a href="#" target="_blank" id="edit_current_file_link">View Current File</a>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Change File (optional)</label>
-                        <input type="file" class="form-control" name="module_file">
-                        <small class="text-muted">Leave this empty if you do not want to change the file.</small>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" name="btnUpdateModule" class="btn btn-primary">Save Changes</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-</div>
-
-
 <script>
     $(document).ready(function () {
         var table = $('#myTable').DataTable();
-
-        // Fill edit modal when clicking Edit button
-        $('.btnEditModule').on('click', function () {
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            var quarter = $(this).data('quarter');
-            var school_year = $(this).data('school_year');
-            var file_url = $(this).data('file_url');
-
-            $('#edit_module_id').val(id);
-            $('#edit_module_name').val(name);
-            $('#edit_quarter').val(quarter);
-            $('#edit_school_year').val(school_year);
-            $('#edit_current_file_link').attr('href', file_url);
-        });
 
         // 🔽 Filter by School Year (column index 2)
         $('#filterSchoolYear').on('change', function () {
