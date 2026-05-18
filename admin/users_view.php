@@ -42,6 +42,12 @@
                                 while ($secRow = mysqli_fetch_assoc($secRes)) {
                                     echo '<option value="' . htmlspecialchars($secRow['section']) . '">' . htmlspecialchars($secRow['section']) . '</option>';
                                 }
+                                // Add Unassigned option if any students have no section
+                                $unassignedRes = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM members_tbl WHERE archived = 0 AND (section IS NULL OR section = '')");
+                                $unassignedRow = mysqli_fetch_assoc($unassignedRes);
+                                if ($unassignedRow['cnt'] > 0) {
+                                    echo '<option value="__unassigned__">Unassigned</option>';
+                                }
                                 ?>
                             </select>
                             <label class="mb-0"><strong>Filter by School Year:</strong></label>
@@ -119,9 +125,13 @@
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             if (selectedSchoolYear && data[5] !== selectedSchoolYear) return false;
             if (selectedSection) {
-                // Section is column index 4; compare display label
-                var sectionVal = (data[4] && data[4].trim() !== '') ? data[4].trim() : 'Unassigned';
-                if (sectionVal !== selectedSection) return false;
+                // Section is column index 4; empty/null values are displayed as 'Unassigned'
+                var rawSection = data[4] ? data[4].trim() : '';
+                if (selectedSection === '__unassigned__') {
+                    if (rawSection !== '') return false;
+                } else {
+                    if (rawSection !== selectedSection) return false;
+                }
             }
             return true;
         });

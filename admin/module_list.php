@@ -141,7 +141,7 @@
 
         $('#openAddModuleModal').on('click', function (e) {
             e.preventDefault();
-            new bootstrap.Modal(document.getElementById('addModuleModal')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addModuleModal')).show();
         });
     });
 </script>
