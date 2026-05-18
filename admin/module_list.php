@@ -17,7 +17,7 @@
                         </ol>
                     </div>
                     <div class="page_title_right">
-                        <button id="openAddModuleModal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModuleModal" data-toggle="modal" data-target="#addModuleModal">Add Module</button>
+                        <button id="openAddModuleModal" class="btn btn-primary" type="button">Add Module</button>
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                                         <tr>
                                             <td><?php echo htmlspecialchars($row['module_name']); ?></td>
                                             <td><?php echo htmlspecialchars($row['quarter']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['section'] ?? 'Unassigned'); ?></td>
+                                            <td><?php echo htmlspecialchars((isset($row['section']) && trim((string)$row['section']) !== '') ? $row['section'] : 'Unassigned'); ?></td>
                                             <td><a href="<?php echo htmlspecialchars($row['module_file_url']); ?>" target="_blank">View File</a></td>
                                             <td><?php echo $row['uploaded_at']; ?></td>
                                             <td>
@@ -126,9 +126,10 @@
             var last = null;
 
             table.column(2, { page: 'current' }).data().each(function (section, i) {
+                var safeSection = $('<div>').text(section || 'Unassigned').html();
                 if (last !== section) {
                     $(rows).eq(i).before(
-                        '<tr class="table-light section-group-row"><td colspan="6"><strong>Section: ' + section + '</strong></td></tr>'
+                        '<tr class="table-light section-group-row"><td colspan="6"><strong>Section: ' + safeSection + '</strong></td></tr>'
                     );
                     last = section;
                 }
