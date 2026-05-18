@@ -70,7 +70,7 @@
                                         (SELECT COUNT(*) FROM answers_tbl a WHERE a.member_id = m.member_id AND a.is_correct = 1) AS total_score
                                     FROM members_tbl m
                                     WHERE m.archived = 0
-                                    ORDER BY m.lname ASC
+                                    ORDER BY m.section ASC, m.lname ASC, m.fname ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($query)) {
                                     ?>
@@ -112,7 +112,28 @@
         });
 
         $(document).ready(function () {
-            var dataTable = $('#myTable').DataTable();
+            var dataTable = $('#myTable').DataTable({
+                order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
+            });
+
+            dataTable.on('draw', function () {
+                var rows = dataTable.rows({ page: 'current' }).nodes();
+                var columnCount = dataTable.columns().count();
+                var last = null;
+
+                dataTable.column(4, { page: 'current' }).data().each(function (section, i) {
+                    var sectionLabel = (section && section.trim() !== '') ? section : 'Unassigned';
+                    var escapedSectionLabel = $('<div>').text(sectionLabel).html();
+                    if (last !== sectionLabel) {
+                        $(rows).eq(i).before(
+                            '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + escapedSectionLabel + '</strong></td></tr>'
+                        );
+                        last = sectionLabel;
+                    }
+                });
+            });
+
+            dataTable.draw();
 
             $('#schoolYearFilter').on('change', function () {
                 selectedSchoolYear = $(this).val();
