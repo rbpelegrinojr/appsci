@@ -8,7 +8,7 @@ if (!isset($_GET['module_id'])) {
 }
 
 $module_id = (int)$_GET['module_id'];
-$stmt = mysqli_prepare($con, "SELECT * FROM modules_tbl WHERE module_id = ?");
+$stmt = mysqli_prepare($con, "SELECT module_id, module_name, quarter, school_year, module_file_url FROM modules_tbl WHERE module_id = ?");
 if (!$stmt) {
     echo "<div class='alert alert-danger'>Unable to load module details.</div>";
     include 'footer.php';
