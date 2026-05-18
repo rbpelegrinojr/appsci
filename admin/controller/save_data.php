@@ -163,7 +163,7 @@ if (isset($_POST['btnUpdateModule'])) {
 }
 
 if (isset($_REQUEST['delete_module_id'])) {
-    $module_id = (int)($_REQUEST['delete_module_id'] ?? 0);
+    $module_id = (int)$_REQUEST['delete_module_id'];
     if ($module_id <= 0) {
         header("Location: ../module_list.php?error=1");
         exit;
@@ -188,7 +188,7 @@ if (isset($_REQUEST['delete_module_id'])) {
         $stmt = mysqli_prepare($con, "DELETE FROM modules_tbl WHERE module_id = ?");
         if ($stmt) {
             mysqli_stmt_bind_param($stmt, "i", $module_id);
-            $success = mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) > 0;
+            $success = mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);
         } else {
             $success = false;
