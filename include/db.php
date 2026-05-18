@@ -3,7 +3,7 @@ date_default_timezone_set('Asia/Manila');
 
 function appsci_column_exists($con, $table, $column) {
 	if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $column)) {
-		error_log('AppSci DB migration check skipped for invalid identifier: ' . $table . '.' . $column . '.');
+		error_log('AppSci DB migration check skipped for invalid identifier.');
 		return false;
 	}
 
