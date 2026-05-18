@@ -34,6 +34,16 @@
                             <h3 class="m-0">Students</h3>
                         </div>
                         <div class="d-flex align-items-center" style="gap:10px;">
+                            <label class="mb-0"><strong>Filter by Section:</strong></label>
+                            <select id="sectionFilter" class="form-control form-control-sm" style="width:160px;">
+                                <option value="">All</option>
+                                <?php
+                                $secRes = mysqli_query($con, "SELECT DISTINCT section FROM members_tbl WHERE archived = 0 AND section IS NOT NULL AND section != '' ORDER BY section ASC");
+                                while ($secRow = mysqli_fetch_assoc($secRes)) {
+                                    echo '<option value="' . htmlspecialchars($secRow['section']) . '">' . htmlspecialchars($secRow['section']) . '</option>';
+                                }
+                                ?>
+                            </select>
                             <label class="mb-0"><strong>Filter by School Year:</strong></label>
                             <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
                                 <option value="">All</option>
@@ -104,11 +114,16 @@
 
     <script type="text/javascript">
         var selectedSchoolYear = '';
+        var selectedSection = '';
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (!selectedSchoolYear) return true;
-            // School Year is column index 5
-            return data[5] === selectedSchoolYear;
+            if (selectedSchoolYear && data[5] !== selectedSchoolYear) return false;
+            if (selectedSection) {
+                // Section is column index 4; compare display label
+                var sectionVal = (data[4] && data[4].trim() !== '') ? data[4].trim() : 'Unassigned';
+                if (sectionVal !== selectedSection) return false;
+            }
+            return true;
         });
 
         $(document).ready(function () {
@@ -137,6 +152,11 @@
 
             $('#schoolYearFilter').on('change', function () {
                 selectedSchoolYear = $(this).val();
+                dataTable.draw();
+            });
+
+            $('#sectionFilter').on('change', function () {
+                selectedSection = $(this).val();
                 dataTable.draw();
             });
         });

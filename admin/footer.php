@@ -152,12 +152,16 @@
 <script src="js/vectormap-world-mill-en.js"></script>
 
 <script src="js/apex-chart2.js"></script>
+<?php if (!empty($loadDashboardCharts)): ?>
 <script src="js/apex_dashboard.js"></script>
+<?php endif; ?>
 
 <script src="js/core.js"></script>
+<?php if (!empty($loadDashboardCharts)): ?>
 <script src="js/charts.js"></script>
 <script src="js/animated.js"></script>
 <script src="js/kelly.js"></script>
+<?php endif; ?>
 <script src="js/chart-custom.js"></script>
 
 <script src="js/dashboard_init.js"></script>

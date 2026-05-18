@@ -90,4 +90,6 @@
 
     </div>
 </div>
+
+<?php $loadDashboardCharts = true; ?>
 <?php include 'footer.php'; ?>
