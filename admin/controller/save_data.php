@@ -7,6 +7,7 @@ if (isset($_REQUEST['btnAddModule'])) {
     $quarter = trim($_POST['quarter'] ?? '');
     $valid_quarters = ['1st', '2nd', '3rd', '4th'];
     if (
+        $section_raw === '' ||
         $module_name === '' ||
         $quarter === '' ||
         !in_array($quarter, $valid_quarters, true) ||
