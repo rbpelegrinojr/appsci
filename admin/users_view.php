@@ -144,7 +144,7 @@
             var dataTable = $('#myTable').DataTable({
                 order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
             });
-            var applyFilters = function () {
+            const applyFilters = function () {
                 selectedSchoolYear = ($('#schoolYearFilter').val() || '').trim();
                 selectedSection = ($('#sectionFilter').val() || '').trim();
                 dataTable.draw();
