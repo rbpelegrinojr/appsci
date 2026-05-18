@@ -2,10 +2,13 @@
 include '../../include/db.php'; 
 
 if (isset($_REQUEST['btnAddModule'])) {
-    $module_name = mysqli_real_escape_string($con, $_POST['module_name']);
-    $quarter = mysqli_real_escape_string($con, $_POST['quarter']);
     $section_raw = trim($_POST['section'] ?? '');
-    $section = $section_raw !== '' ? "'" . mysqli_real_escape_string($con, $section_raw) . "'" : "NULL";
+    if ($section_raw === '') {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+    $module_name = trim($_POST['module_name'] ?? '');
+    $quarter = trim($_POST['quarter'] ?? '');
 
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
@@ -23,10 +26,16 @@ if (isset($_REQUEST['btnAddModule'])) {
             $baseURL = 'https://appsci.thesissystems.link/uploads/modules/';
             $fileURL = $baseURL . $fileNameWithTime;
 
-            $sql = "INSERT INTO modules_tbl (module_name, quarter, section, module_file_url)
-                    VALUES ('$module_name', '$quarter', $section, '$fileURL')";
-            if (mysqli_query($con, $sql)) {
-                header("Location: ../module_list.php?success=1");
+            $stmt = mysqli_prepare($con, "INSERT INTO modules_tbl (module_name, quarter, section, module_file_url) VALUES (?, ?, ?, ?)");
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, "ssss", $module_name, $quarter, $section_raw, $fileURL);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    header("Location: ../module_list.php?success=1");
+                } else {
+                    header("Location: ../module_list.php?error=1");
+                }
+                mysqli_stmt_close($stmt);
             } else {
                 header("Location: ../module_list.php?error=1");
             }
