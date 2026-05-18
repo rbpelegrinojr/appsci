@@ -3,10 +3,6 @@ include '../../include/db.php';
 
 if (isset($_REQUEST['btnAddModule'])) {
     $section_raw = trim($_POST['section'] ?? '');
-    if ($section_raw === '') {
-        header("Location: ../module_list.php?error=1");
-        exit;
-    }
     $module_name = trim($_POST['module_name'] ?? '');
     $quarter = trim($_POST['quarter'] ?? '');
     $valid_quarters = ['1st', '2nd', '3rd', '4th'];

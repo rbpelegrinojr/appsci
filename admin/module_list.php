@@ -100,7 +100,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Section</label>
-                        <input type="text" class="form-control" name="section" placeholder="e.g. Section A" maxlength="100" pattern=".*\S.*" title="Section cannot be empty or contain only whitespace" required>
+                        <input type="text" class="form-control" name="section" placeholder="e.g. Section A" maxlength="100" pattern="\S+(\s+\S+)*" title="Section cannot be empty or contain only whitespace" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Upload Module File (PDF, DOCX, etc.)</label>
@@ -127,10 +127,10 @@
             var last = null;
 
             table.column(2, { page: 'current' }).data().each(function (section, i) {
-                var safeSection = $('<div>').text(section || 'Unassigned').html();
+                var escapedSectionLabel = $('<div>').text(section || 'Unassigned').html();
                 if (last !== section) {
                     $(rows).eq(i).before(
-                        '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + safeSection + '</strong></td></tr>'
+                        '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + escapedSectionLabel + '</strong></td></tr>'
                     );
                     last = section;
                 }
