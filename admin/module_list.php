@@ -80,7 +80,7 @@
                                             <td><a href="<?php echo htmlspecialchars($row['module_file_url']); ?>" target="_blank">View File</a></td>
                                             <td><?php echo $row['uploaded_at']; ?></td>
                                             <td>
-                                                <a href="quiz_creation.php?module_id=<?php echo $row['module_id']; ?>" class="btn btn-success btn-sm">Create Quiz</a>
+                                                <a href="quiz_creation.php?module_id=<?php echo (int)$row['module_id']; ?>" class="btn btn-success btn-sm">Create Quiz</a>
                                             </td>
                                             <td>
                                                 <a href="edit_module.php?module_id=<?php echo (int)$row['module_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
