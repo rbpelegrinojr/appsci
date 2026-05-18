@@ -169,11 +169,11 @@ if (isset($_REQUEST['delete_module_id'])) {
         exit;
     }
 
-    $success = true;
     if (!mysqli_begin_transaction($con)) {
         header("Location: ../module_list.php?error=1");
         exit;
     }
+    $success = true;
 
     $stmt = mysqli_prepare($con, "DELETE FROM questions_tbl WHERE module_id = ?");
     if ($stmt) {
