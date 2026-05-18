@@ -120,27 +120,27 @@
     </div>
 
     <script type="text/javascript">
-        var selectedSchoolYear = '';
-        var selectedSection = '';
-
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'myTable') return true;
-
-            var schoolYear = data[5] ? data[5].trim() : '';
-            if (selectedSchoolYear && schoolYear !== selectedSchoolYear) return false;
-            if (selectedSection) {
-                // Section is column index 4; empty/null values are displayed as 'Unassigned'
-                var rawSection = data[4] ? data[4].trim() : '';
-                if (selectedSection === '__unassigned__') {
-                    if (rawSection !== '') return false;
-                } else {
-                    if (rawSection !== selectedSection) return false;
-                }
-            }
-            return true;
-        });
-
         $(document).ready(function () {
+            let selectedSchoolYear = '';
+            let selectedSection = '';
+
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'myTable') return true;
+
+                var schoolYear = data[5] ? data[5].trim() : '';
+                if (selectedSchoolYear && schoolYear !== selectedSchoolYear) return false;
+                if (selectedSection) {
+                    // Section is column index 4; empty/null values are displayed as 'Unassigned'
+                    var rawSection = data[4] ? data[4].trim() : '';
+                    if (selectedSection === '__unassigned__') {
+                        if (rawSection !== '') return false;
+                    } else {
+                        if (rawSection !== selectedSection) return false;
+                    }
+                }
+                return true;
+            });
+
             var dataTable = $('#myTable').DataTable({
                 order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
             });
