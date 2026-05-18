@@ -87,7 +87,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Module Name</label>
-                        <input type="text" class="form-control" name="module_name" required>
+                        <input type="text" class="form-control" name="module_name" maxlength="255" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Quarter</label>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Section</label>
-                        <input type="text" class="form-control" name="section" placeholder="e.g. Section A" required>
+                        <input type="text" class="form-control" name="section" placeholder="e.g. Section A" maxlength="100" pattern=".*\S.*" title="Section cannot be empty or contain only whitespace" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Upload Module File (PDF, DOCX, etc.)</label>

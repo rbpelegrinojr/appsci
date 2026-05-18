@@ -9,7 +9,14 @@ if (isset($_REQUEST['btnAddModule'])) {
     }
     $module_name = trim($_POST['module_name'] ?? '');
     $quarter = trim($_POST['quarter'] ?? '');
-    if ($module_name === '' || $quarter === '') {
+    $valid_quarters = ['1st', '2nd', '3rd', '4th'];
+    if (
+        $module_name === '' ||
+        $quarter === '' ||
+        !in_array($quarter, $valid_quarters, true) ||
+        strlen($module_name) > 255 ||
+        strlen($section_raw) > 100
+    ) {
         header("Location: ../module_list.php?error=1");
         exit;
     }
