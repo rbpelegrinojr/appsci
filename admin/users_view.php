@@ -123,7 +123,10 @@
         var selectedSection = '';
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (selectedSchoolYear && data[5] !== selectedSchoolYear) return false;
+            if (settings.nTable.id !== 'myTable') return true;
+
+            var schoolYear = data[5] ? data[5].trim() : '';
+            if (selectedSchoolYear && schoolYear !== selectedSchoolYear) return false;
             if (selectedSection) {
                 // Section is column index 4; empty/null values are displayed as 'Unassigned'
                 var rawSection = data[4] ? data[4].trim() : '';
@@ -142,6 +145,8 @@
             });
 
             dataTable.on('draw', function () {
+                $('#myTable tbody tr.section-group-row').remove();
+
                 var rows = dataTable.rows({ page: 'current' }).nodes();
                 var columnCount = dataTable.columns().count();
                 var last = null;
@@ -161,12 +166,12 @@
             dataTable.draw();
 
             $('#schoolYearFilter').on('change', function () {
-                selectedSchoolYear = $(this).val();
+                selectedSchoolYear = ($(this).val() || '').trim();
                 dataTable.draw();
             });
 
             $('#sectionFilter').on('change', function () {
-                selectedSection = $(this).val();
+                selectedSection = ($(this).val() || '').trim();
                 dataTable.draw();
             });
         });
