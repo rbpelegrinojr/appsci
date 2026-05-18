@@ -2,12 +2,15 @@
 date_default_timezone_set('Asia/Manila');
 
 function appsci_column_exists($con, $table, $column) {
-	$table = mysqli_real_escape_string($con, $table);
-	$column = mysqli_real_escape_string($con, $column);
+	if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $column)) {
+		error_log('AppSci DB migration check skipped due to invalid identifier.');
+		return false;
+	}
+
 	try {
 		$result = mysqli_query($con, "SHOW COLUMNS FROM `{$table}` LIKE '{$column}'");
 	} catch (Throwable $e) {
-		error_log('AppSci DB migration check failed for ' . $table . '.' . $column . ': ' . $e->getMessage());
+		error_log('AppSci DB migration check failed.');
 		return false;
 	}
 	return ($result && mysqli_num_rows($result) > 0);
@@ -16,10 +19,10 @@ function appsci_column_exists($con, $table, $column) {
 function appsci_run_migration($con, $sql, $label) {
 	try {
 		if (!mysqli_query($con, $sql)) {
-			error_log('AppSci DB migration failed for ' . $label . ': ' . mysqli_error($con));
+			error_log('AppSci DB migration failed for ' . $label . ' (errno ' . mysqli_errno($con) . ').');
 		}
 	} catch (Throwable $e) {
-		error_log('AppSci DB migration exception for ' . $label . ': ' . $e->getMessage());
+		error_log('AppSci DB migration exception for ' . $label . '.');
 	}
 }
 
