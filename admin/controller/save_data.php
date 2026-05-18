@@ -162,6 +162,49 @@ if (isset($_POST['btnUpdateModule'])) {
     exit;
 }
 
+if (isset($_REQUEST['delete_module_id'])) {
+    $module_id = (int)($_REQUEST['delete_module_id'] ?? 0);
+    if ($module_id <= 0) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+
+    $success = true;
+    if (!mysqli_begin_transaction($con)) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+
+    $stmt = mysqli_prepare($con, "DELETE FROM questions_tbl WHERE module_id = ?");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "i", $module_id);
+        $success = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $success = false;
+    }
+
+    if ($success) {
+        $stmt = mysqli_prepare($con, "DELETE FROM modules_tbl WHERE module_id = ?");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "i", $module_id);
+            $success = mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) > 0;
+            mysqli_stmt_close($stmt);
+        } else {
+            $success = false;
+        }
+    }
+
+    if ($success) {
+        mysqli_commit($con);
+        header("Location: ../module_list.php?success=1");
+    } else {
+        mysqli_rollback($con);
+        header("Location: ../module_list.php?error=1");
+    }
+    exit;
+}
+
 if (isset($_POST['add_questions_bulk'])) {
     $module_id = (int)$_POST['module_id'];
     $texts = $_POST['question_text'];
