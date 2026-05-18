@@ -8,8 +8,17 @@ if (!isset($_GET['module_id'])) {
 }
 
 $module_id = (int)$_GET['module_id'];
-$result = mysqli_query($con, "SELECT * FROM modules_tbl WHERE module_id = $module_id");
-$module = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($con, "SELECT * FROM modules_tbl WHERE module_id = ?");
+if (!$stmt) {
+    echo "<div class='alert alert-danger'>Unable to load module details.</div>";
+    include 'footer.php';
+    exit();
+}
+mysqli_stmt_bind_param($stmt, "i", $module_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$module = $result ? mysqli_fetch_assoc($result) : null;
+mysqli_stmt_close($stmt);
 
 if (!$module) {
     echo "<div class='alert alert-danger'>Module not found.</div>";
