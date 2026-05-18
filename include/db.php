@@ -33,7 +33,7 @@ if ($con = mysqli_connect("localhost", "thesissy_appsci", "Sw0rdf1sh@34", "thesi
 	if (!appsci_column_exists($con, 'modules_tbl', 'section')) {
 		appsci_run_migration($con, "ALTER TABLE modules_tbl ADD COLUMN section VARCHAR(100) DEFAULT NULL", 'modules_tbl.section');
 	}
-}else{
+} else {
 
 	?>
 	<div class="alert alert-warning">
