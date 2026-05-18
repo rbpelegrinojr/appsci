@@ -33,20 +33,37 @@
                         <div class="main-title">
                             <h3 class="m-0">Students</h3>
                         </div>
-                        <div class="d-flex align-items-center" style="gap:10px;">
-                            <label class="mb-0"><strong>Filter by School Year:</strong></label>
-                            <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
+                         <div class="d-flex align-items-center" style="gap:10px;">
+                             <label class="mb-0"><strong>Filter by Section:</strong></label>
+                             <select id="sectionFilter" class="form-control form-control-sm" style="width:160px;">
                                 <option value="">All</option>
+                                <?php
+                                $secRes = mysqli_query($con, "SELECT DISTINCT section FROM members_tbl WHERE archived = 0 AND section IS NOT NULL AND section != '' ORDER BY section ASC");
+                                while ($secRow = mysqli_fetch_assoc($secRes)) {
+                                    echo '<option value="' . htmlspecialchars($secRow['section']) . '">' . htmlspecialchars($secRow['section']) . '</option>';
+                                }
+                                // Add Unassigned option if any students have no section
+                                $unassignedRes = mysqli_query($con, "SELECT COUNT(*) AS cnt FROM members_tbl WHERE archived = 0 AND (section IS NULL OR section = '')");
+                                $unassignedRow = mysqli_fetch_assoc($unassignedRes);
+                                if ($unassignedRow['cnt'] > 0) {
+                                    echo '<option value="__unassigned__">Unassigned</option>';
+                                }
+                                ?>
+                            </select>
+                             <label class="mb-0"><strong>Filter by School Year:</strong></label>
+                             <select id="schoolYearFilter" class="form-control form-control-sm" style="width:160px;">
+                                 <option value="">All</option>
                                 <?php
                                 $syRes = mysqli_query($con, "SELECT DISTINCT school_year FROM members_tbl WHERE archived = 0 AND school_year IS NOT NULL AND school_year != '' ORDER BY school_year DESC");
                                 while ($syRow = mysqli_fetch_assoc($syRes)) {
                                     echo '<option value="' . htmlspecialchars($syRow['school_year']) . '">' . htmlspecialchars($syRow['school_year']) . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                                 }
+                                 ?>
+                             </select>
+                             <button type="button" id="applyFiltersBtn" class="btn btn-primary btn-sm">Filter</button>
+                         </div>
+                     </div>
+                 </div>
                 <div class="white_card_body">
                     <div class="table-responsive">
                         <table class="table" id="myTable">
@@ -70,7 +87,7 @@
                                         (SELECT COUNT(*) FROM answers_tbl a WHERE a.member_id = m.member_id AND a.is_correct = 1) AS total_score
                                     FROM members_tbl m
                                     WHERE m.archived = 0
-                                    ORDER BY m.lname ASC
+                                    ORDER BY m.section ASC, m.lname ASC, m.fname ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($query)) {
                                     ?>
@@ -103,21 +120,65 @@
     </div>
 
     <script type="text/javascript">
-        var selectedSchoolYear = '';
-
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (!selectedSchoolYear) return true;
-            // School Year is column index 5
-            return data[5] === selectedSchoolYear;
-        });
-
         $(document).ready(function () {
-            var dataTable = $('#myTable').DataTable();
+            let selectedSchoolYear = '';
+            let selectedSection = '';
 
-            $('#schoolYearFilter').on('change', function () {
-                selectedSchoolYear = $(this).val();
-                dataTable.draw();
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'myTable') return true;
+
+                var schoolYear = data[5] ? data[5].trim() : '';
+                if (selectedSchoolYear && schoolYear !== selectedSchoolYear) return false;
+                if (selectedSection) {
+                    // Section is column index 4; empty/null values are displayed as 'Unassigned'
+                    var rawSection = data[4] ? data[4].trim() : '';
+                    if (selectedSection === '__unassigned__') {
+                        if (rawSection !== '') return false;
+                    } else {
+                        if (rawSection !== selectedSection) return false;
+                    }
+                }
+                return true;
             });
+
+            var dataTable = $('#myTable').DataTable({
+                order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
+            });
+            function applyFilters() {
+                selectedSchoolYear = ($('#schoolYearFilter').val() || '').trim();
+                selectedSection = ($('#sectionFilter').val() || '').trim();
+                dataTable.draw();
+            }
+
+            dataTable.on('draw', function () {
+                $('#myTable tbody tr.section-group-row').remove();
+
+                var rows = dataTable.rows({ page: 'current' }).nodes();
+                var columnCount = dataTable.columns().count();
+                var last = null;
+
+                dataTable.column(4, { page: 'current' }).data().each(function (section, i) {
+                    var sectionLabel = (section && section.trim() !== '') ? section : 'Unassigned';
+                    var escapedSectionLabel = $('<div>').text(sectionLabel).html();
+                    if (last !== sectionLabel) {
+                        $(rows).eq(i).before(
+                            '<tr class="table-light section-group-row"><td colspan="' + columnCount + '"><strong>Section: ' + escapedSectionLabel + '</strong></td></tr>'
+                        );
+                        last = sectionLabel;
+                    }
+                });
+            });
+
+            dataTable.draw();
+
+            $('#applyFiltersBtn').on('click', applyFilters);
+            $('#schoolYearFilter, #sectionFilter').on('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    applyFilters();
+                }
+            });
+
         });
     </script>
 <?php include 'footer.php'; ?>

@@ -136,7 +136,6 @@
 <script src="js/datepicker.js"></script>
 <script src="js/datepicker.en.js"></script>
 <script src="js/datepicker.custom.js"></script>
-<script src="js/chart.min.js"></script>
 <script src="js/roundedBar.min.js"></script>
 
 <script src="js/jquery.barfiller.js"></script>
@@ -153,12 +152,16 @@
 <script src="js/vectormap-world-mill-en.js"></script>
 
 <script src="js/apex-chart2.js"></script>
+<?php if (!empty($loadDashboardCharts)): ?>
 <script src="js/apex_dashboard.js"></script>
+<?php endif; ?>
 
 <script src="js/core.js"></script>
+<?php if (!empty($loadDashboardCharts)): ?>
 <script src="js/charts.js"></script>
 <script src="js/animated.js"></script>
 <script src="js/kelly.js"></script>
+<?php endif; ?>
 <script src="js/chart-custom.js"></script>
 
 <script src="js/dashboard_init.js"></script>

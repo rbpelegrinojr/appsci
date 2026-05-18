@@ -1,19 +1,65 @@
 <?php
 include '../../include/db.php'; 
 
+function appsci_is_allowed_module_file($tmpFilePath, $originalFileName) {
+    $allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+    $allowedMimes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+
+    $extension = strtolower(pathinfo($originalFileName, PATHINFO_EXTENSION));
+    if (!in_array($extension, $allowedExtensions, true)) {
+        return false;
+    }
+
+    $mimeType = null;
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $mimeType = finfo_file($finfo, $tmpFilePath);
+            finfo_close($finfo);
+        }
+    }
+
+    return $mimeType === null || in_array($mimeType, $allowedMimes, true);
+}
+
 if (isset($_REQUEST['btnAddModule'])) {
-    $module_name = mysqli_real_escape_string($con, $_POST['module_name']);
-    $quarter = mysqli_real_escape_string($con, $_POST['quarter']);
+    $module_name = trim($_POST['module_name'] ?? '');
+    $quarter = trim($_POST['quarter'] ?? '');
+    $school_year = trim($_POST['school_year'] ?? '');
+    $section_raw = trim($_POST['section'] ?? '');
+    $valid_quarters = ['1st', '2nd', '3rd', '4th'];
+    if (
+        $module_name === '' ||
+        $quarter === '' ||
+        $school_year === '' ||
+        !in_array($quarter, $valid_quarters, true) ||
+        strlen($module_name) > 255 ||
+        strlen($section_raw) > 100 ||
+        strlen($school_year) > 20
+    ) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
 
     if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmp = $_FILES['module_file']['tmp_name'];
         $fileName = basename($_FILES['module_file']['name']);
+        if (!appsci_is_allowed_module_file($fileTmp, $fileName)) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
         $uploadDir = '../../uploads/modules/';
         $fileNameWithTime = time() . '_' . $fileName;
         $uploadPath = $uploadDir . $fileNameWithTime;
 
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            mkdir($uploadDir, 0755, true);
         }
 
         if (move_uploaded_file($fileTmp, $uploadPath)) {
@@ -21,10 +67,16 @@ if (isset($_REQUEST['btnAddModule'])) {
             $baseURL = 'https://appsci.thesissystems.link/uploads/modules/';
             $fileURL = $baseURL . $fileNameWithTime;
 
-            $sql = "INSERT INTO modules_tbl (module_name, quarter, module_file_url)
-                    VALUES ('$module_name', '$quarter', '$fileURL')";
-            if (mysqli_query($con, $sql)) {
-                header("Location: ../module_list.php?success=1");
+            $stmt = mysqli_prepare($con, "INSERT INTO modules_tbl (module_name, quarter, school_year, section, module_file_url) VALUES (?, ?, ?, ?, ?)");
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, "sssss", $module_name, $quarter, $school_year, $section_raw, $fileURL);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    header("Location: ../module_list.php?success=1");
+                } else {
+                    header("Location: ../module_list.php?error=1");
+                }
+                mysqli_stmt_close($stmt);
             } else {
                 header("Location: ../module_list.php?error=1");
             }
@@ -34,6 +86,123 @@ if (isset($_REQUEST['btnAddModule'])) {
     } else {
         header("Location: ../module_list.php?error=1");
     }
+    exit;
+}
+
+if (isset($_POST['btnUpdateModule'])) {
+    $module_id = (int)($_POST['module_id'] ?? 0);
+    $module_name = trim($_POST['module_name'] ?? '');
+    $quarter = trim($_POST['quarter'] ?? '');
+    $school_year = trim($_POST['school_year'] ?? '');
+    $valid_quarters = ['1st', '2nd', '3rd', '4th'];
+
+    if (
+        $module_id <= 0 ||
+        $module_name === '' ||
+        $quarter === '' ||
+        $school_year === '' ||
+        !in_array($quarter, $valid_quarters, true) ||
+        strlen($module_name) > 255 ||
+        strlen($school_year) > 20
+    ) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+
+    $fileURL = null;
+    if (isset($_FILES['module_file']) && $_FILES['module_file']['error'] === UPLOAD_ERR_OK) {
+        $fileTmp = $_FILES['module_file']['tmp_name'];
+        $fileName = basename($_FILES['module_file']['name']);
+        if (!appsci_is_allowed_module_file($fileTmp, $fileName)) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
+        $uploadDir = '../../uploads/modules/';
+        $fileNameWithTime = time() . '_' . $fileName;
+        $uploadPath = $uploadDir . $fileNameWithTime;
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        if (!move_uploaded_file($fileTmp, $uploadPath)) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
+
+        $baseURL = 'https://appsci.thesissystems.link/uploads/modules/';
+        $fileURL = $baseURL . $fileNameWithTime;
+    } elseif (isset($_FILES['module_file']) && $_FILES['module_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+
+    if ($fileURL !== null) {
+        $stmt = mysqli_prepare($con, "UPDATE modules_tbl SET module_name = ?, quarter = ?, school_year = ?, module_file_url = ? WHERE module_id = ?");
+        if (!$stmt) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
+        mysqli_stmt_bind_param($stmt, "ssssi", $module_name, $quarter, $school_year, $fileURL, $module_id);
+    } else {
+        $stmt = mysqli_prepare($con, "UPDATE modules_tbl SET module_name = ?, quarter = ?, school_year = ? WHERE module_id = ?");
+        if (!$stmt) {
+            header("Location: ../module_list.php?error=1");
+            exit;
+        }
+        mysqli_stmt_bind_param($stmt, "sssi", $module_name, $quarter, $school_year, $module_id);
+    }
+
+    if (mysqli_stmt_execute($stmt)) {
+        header("Location: ../module_list.php?success=1");
+    } else {
+        header("Location: ../module_list.php?error=1");
+    }
+    mysqli_stmt_close($stmt);
+    exit;
+}
+
+if (isset($_REQUEST['delete_module_id'])) {
+    $module_id = (int)$_REQUEST['delete_module_id'];
+    if ($module_id <= 0) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+
+    if (!mysqli_begin_transaction($con)) {
+        header("Location: ../module_list.php?error=1");
+        exit;
+    }
+    $success = true;
+
+    $stmt = mysqli_prepare($con, "DELETE FROM questions_tbl WHERE module_id = ?");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "i", $module_id);
+        $success = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $success = false;
+    }
+
+    if ($success) {
+        $stmt = mysqli_prepare($con, "DELETE FROM modules_tbl WHERE module_id = ?");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "i", $module_id);
+            $success = mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        } else {
+            $success = false;
+        }
+    }
+
+    if ($success) {
+        mysqli_commit($con);
+        header("Location: ../module_list.php?success=1");
+    } else {
+        mysqli_rollback($con);
+        header("Location: ../module_list.php?error=1");
+    }
+    exit;
 }
 
 if (isset($_POST['add_questions_bulk'])) {
@@ -111,4 +280,3 @@ if (isset($_POST['restoreStudent'])) {
 }
 
 ?>
-
