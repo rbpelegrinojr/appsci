@@ -144,11 +144,11 @@
             var dataTable = $('#myTable').DataTable({
                 order: [[4, 'asc'], [0, 'asc'], [1, 'asc']]
             });
-            const applyFilters = function () {
+            function applyFilters() {
                 selectedSchoolYear = ($('#schoolYearFilter').val() || '').trim();
                 selectedSection = ($('#sectionFilter').val() || '').trim();
                 dataTable.draw();
-            };
+            }
 
             dataTable.on('draw', function () {
                 $('#myTable tbody tr.section-group-row').remove();
@@ -172,6 +172,12 @@
             dataTable.draw();
 
             $('#applyFiltersBtn').on('click', applyFilters);
+            $('#schoolYearFilter, #sectionFilter').on('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    applyFilters();
+                }
+            });
 
         });
     </script>
